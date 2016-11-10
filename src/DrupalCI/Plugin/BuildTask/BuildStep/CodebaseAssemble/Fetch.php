@@ -38,11 +38,7 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
    * @inheritDoc
    */
   public function configure() {
-    // @TODO make into a test
-     // $_ENV['DCI_Fetch']='https://www.drupal.org/files/issues/2796581-region-136.patch,.;https://www.drupal.org/files/issues/another.patch,.';
-    if (isset($_ENV['DCI_Fetch'])) {
-      $this->configuration['files'] = $this->process($_ENV['DCI_Fetch']);
-    }
+
   }
 
   /**
@@ -50,7 +46,7 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
    */
   public function run() {
 
-    $files = $this->configuration['files'];
+    $files = $this->configuration->files;
 
     if (empty($files)) {
       $this->io->writeln('No files to fetch.');

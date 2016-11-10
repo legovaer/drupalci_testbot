@@ -3,6 +3,7 @@
 namespace DrupalCI\Plugin\BuildTask;
 
 use DrupalCI\Build\BuildInterface;
+use DrupalCI\Configuration\Configuration;
 use DrupalCI\Plugin\BuildTask;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 
@@ -24,9 +25,10 @@ trait BuildTaskTrait {
 
   /**
    * Any variables that can affect the behavior of this plugin, that are
-   * specific to this plugin, reside in a configuration array within the plugin.
+   * specific to this plugin, reside in a configuration entity within the
+   * plugin.
    *
-   * @var array
+   * @var Configuration
    *
    */
   protected $configuration;
@@ -68,13 +70,4 @@ trait BuildTaskTrait {
     return $this->elapsedTime;
   }
 
-  protected function override_config() {
-
-    if (!empty($this->configuration_overrides)) {
-      if ($invalid_overrides = array_diff_key($this->configuration_overrides, $this->configuration)){
-        // @TODO: somebody is trying to override a non-existant configuration value. Throw an exception? print a warning?
-      }
-      $this->configuration = array_merge($this->configuration, array_intersect_key($this->configuration_overrides, $this->configuration));
-    }
-  }
 }

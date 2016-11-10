@@ -42,11 +42,7 @@ class Patch extends PluginBase implements BuildStepInterface, BuildTaskInterface
    * @inheritDoc
    */
   public function configure() {
-    // @TODO make into a test
-    // $_ENV['DCI_Patch']='https://www.drupal.org/files/issues/2796581-region-136.patch,.;https://www.drupal.org/files/issues/another.patch,.';
-    if (isset($_ENV['DCI_Patch'])) {
-      $this->configuration['patches'] = $this->process($_ENV['DCI_Patch']);
-    }
+
   }
 
   /**
@@ -54,7 +50,7 @@ class Patch extends PluginBase implements BuildStepInterface, BuildTaskInterface
    */
   public function run() {
 
-    $files = $this->configuration['patches'];
+    $files = $this->configuration->patches;
 
     if (empty($files)) {
       $this->io->writeln('No patches to apply.');

@@ -71,8 +71,7 @@ class SimpletestBuild extends Build {
    * traversed to get to the location that variable would exist in the build
    * definition.
    *
-   * As an example, DCI_DBVersion defines the database type (mysql, pgsql, etc)
-   * for a given build. In a parsed .yml build definition file, this information
+   * As an example, DCI_DBVersion DCI_DBUser In a parsed .yml build definition file, this information
    * would be stored in the value located at:
    * array(
    *   'environment' => array(
@@ -101,7 +100,7 @@ class SimpletestBuild extends Build {
    */
   public $_availableArguments = array(
     // ***** Variables Available for any build type *****
-    'DCI_UseLocalCodebase' => 'Used to define a local codebase to be cloned (instead of performing a Git checkout)',
+    'DCI_UseLocalCodebase' => 'Used to define a local codebase to be cloned (instead of performing a Git checkout)', #Covered
     'DCI_WorkingDir' => 'Defines the location to be used in creating the local copy of the codebase, to be mapped into the container as a container volume.  Default: /tmp/simpletest-[random string]',
     'DCI_BuildId' => 'Specifies a unique build ID assigned to this build from an upstream server',
     'DCI_JobType' => 'Specifies a default build type to assume for a "drupalci run" command',
@@ -113,14 +112,14 @@ class SimpletestBuild extends Build {
     'DCI_CoreRepository' => 'Defines the primary repository to be checked out while building the codebase to test.  Default: git://drupalcode.org/project/drupal.git',
     'DCI_CoreBranch' => 'Defines the branch on the primary repository to be checked out while building the codebase to test.  Default: 8.0.x',
     'DCI_GitCheckoutDepth' => 'Defines the depth parameter passed to git clone while checking out the core repository.  Default: 1',
-    'DCI_RunScript' => 'Defines the default run script to be executed on the container.  Default: /var/www/html/core/scripts/run-tests.sh',
+    'DCI_RunScript' => 'Defines the default run script to be executed on the container.  Default: /var/www/html/core/scripts/run-tests.sh', #covered
     'DCI_RunOptions' => 'A string containing a series of any other run script options to append to the run script when performing a build.',
-    'DCI_DBUser' => 'Defines the default database user to be used on the site database.  Default: drupaltestbot',
-    'DCI_DBPassword' => 'Defines the default database password to be used on the site database.  Default: drupaltestbotpw',
+    'DCI_DBUser' => 'Defines the default database user to be used on the site database.  Default: drupaltestbot', #covered
+    'DCI_DBPassword' => 'Defines the default database password to be used on the site database.  Default: drupaltestbotpw', #covered
     'DCI_DBUrl' => 'Define the --dburl parameter to be passed to the run script.  Default: dbtype://host (DBVersion, DBUser and DBPassword variable plugins will populate this).',
     'DCI_TestGroups' => 'Defines the target test groups to run.  Default: --all',
     'DCI_SQLite' => 'Defines the location of the sqlite database used to store test results.  Default: /var/www/html/results/simpletest.sqlite',
-    'DCI_Concurrency' => 'Defines the value to pass to the --concurrency argument of the run script.  Default: 4',
+    'DCI_Concurrency' => 'Defines the value to pass to the --concurrency argument of the run script.  Default: 4', #covered
     'DCI_XMLOutput' => 'Defines the directory where xml results will be stored.  Default: output/var/www/html/results/xml',
     'DCI_PHPInterpreter' => 'Defines the php interpreter to be passed to the Run Script in the --php argument.  Default: /opt/phpenv/shims/php',
     // Default: 'color;'
@@ -128,7 +127,7 @@ class SimpletestBuild extends Build {
     // ***** Optional arguments *****
     'DCI_DieOnFail' => 'Defines whether to include the --die-on-fail flag in the Run Script options',
     'DCI_SQLite' => 'Defines whether to include the --sqlite flag in the Run Script options',
-    'DCI_Fetch' => 'Used to specify any files which should be downloaded while building out the codebase.',
+    'DCI_Fetch' => 'Used to specify any files which should be downloaded while building out the codebase.', #covered
     // Syntax: 'url1,relativelocaldirectory1;url2,relativelocaldirectory2;...'
     'DCI_Patch' => 'Defines any patches which should be applied while building out the codebase.',
     // Syntax: 'localfile1,applydirectory1;localfile2,applydirectory2;...'

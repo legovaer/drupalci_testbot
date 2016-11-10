@@ -45,7 +45,7 @@ class Composer extends PluginBase implements BuildStepInterface, BuildTaskInterf
 
     $source_dir = $this->build->getSourceDirectory();
 
-    $cmd = "./bin/composer " . $this->configuration['options'] . " " . $source_dir;
+    $cmd = "./bin/composer " . $this->configuration->options . " " . $source_dir;
     $this->exec($cmd, $cmdoutput, $result);
 
   }
@@ -63,7 +63,7 @@ class Composer extends PluginBase implements BuildStepInterface, BuildTaskInterf
   public function getDefaultConfiguration() {
     // TODO: Implement getDefaultConfiguration() method.
     return [
-      'options' => 'install --prefer-dist --working-dir',
+      'options' => 'install --prefer-dist --working-dir --no-progress',
     ];
   }
 

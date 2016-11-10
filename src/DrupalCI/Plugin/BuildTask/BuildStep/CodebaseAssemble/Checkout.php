@@ -39,44 +39,6 @@ class Checkout extends PluginBase implements BuildStepInterface, BuildTaskInterf
    */
   public function configure() {
 
-    if (isset($_ENV['DCI_CoreRepository'])) {
-      $this->configuration['repositories'][0]['repo'] = $_ENV['DCI_CoreRepository'];
-    }
-    if (isset($_ENV['DCI_CoreBranch'])) {
-      $this->configuration['repositories'][0]['branch'] = $_ENV['DCI_CoreBranch'];
-    }
-    if (isset($_ENV['DCI_GitCheckoutDepth'])) {
-      $this->configuration['repositories'][0]['depth'] = $_ENV['DCI_GitCheckoutDepth'];
-    }
-    if (isset($_ENV['DCI_GitCommitHash'])) {
-      $this->configuration['repositories'][0]['commit_hash'] = $_ENV['DCI_GitCommitHash'];
-    }
-   // @TODO make a test:  $_ENV['DCI_AdditionalRepositories']='git,git://git.drupal.org/project/panels.git,8.x-3.x,modules/panels,1;git,git://git.drupal.org/project/ctools.git,8.x-3.0-alpha27,modules/ctools,1;git,git://git.drupal.org/project/layout_plugin.git,8.x-1.0-alpha23,modules/layout_plugin,1;git,git://git.drupal.org/project/page_manager.git,8.x-1.0-alpha24,modules/page_manager,1';
-    if (isset($_ENV['DCI_AdditionalRepositories'])) {
-      // Parse the provided repository string into it's components
-      $entries = explode(';', $_ENV['DCI_AdditionalRepositories']);
-      foreach ($entries as $entry) {
-        if (empty($entry)) { continue; }
-        $components = explode(',', $entry);
-        // Ensure we have at least 3 components
-        if (count($components) < 4) {
-          $this->io->writeln("<error>Unable to parse repository information for value <options=bold>$entry</options=bold>.</error>");
-          // TODO: Bail out of processing.  For now, we'll just keep going with the next entry.
-          continue;
-        }
-        // Create the build definition entry
-        $output = array(
-          'protocol' => $components[0],
-          'repo' => $components[1],
-          'branch' => $components[2],
-          'checkout_dir' => $components[3]
-        );
-        if (!empty($components[4])) {
-          $output['depth'] = $components[4];
-        }
-        $this->configuration['repositories'][] = $output;
-      }
-    }
   }
 
   /**
@@ -84,7 +46,7 @@ class Checkout extends PluginBase implements BuildStepInterface, BuildTaskInterf
    */
   public function run() {
     $this->io->writeln("<info>Populating container codebase data volume.</info>");
-    foreach ($this->configuration['repositories'] as $repository ) {
+    foreach ($this->configuration->repositories as $repository ) {
       switch ($repository['protocol']) {
         case 'local':
           $this->setupCheckoutLocal($repository);

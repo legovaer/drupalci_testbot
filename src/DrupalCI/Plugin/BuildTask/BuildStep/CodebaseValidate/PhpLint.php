@@ -45,9 +45,7 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
    * @inheritDoc
    */
   public function configure() {
-    if (isset($_ENV['DCI_Concurrency'])) {
-      $this->configuration['concurrency']= $_ENV['DCI_Concurrency'];
-    }
+
   }
 
   /**
@@ -64,7 +62,7 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
     }
 
     $workingdir = $this->build->getSourceDirectory();
-    $concurrency = $this->configuration['concurrency'];
+    $concurrency = $this->configuration->concurrency;
     $bash_array = "";
     foreach ($modified_files as $file) {
       $file_path = $workingdir . "/" . $file;

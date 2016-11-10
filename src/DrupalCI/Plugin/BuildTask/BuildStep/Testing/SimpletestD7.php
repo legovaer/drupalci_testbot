@@ -5,6 +5,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
+use DrupalCI\Configuration\Configuration;
 use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
@@ -42,47 +43,29 @@ class SimpletestD7 extends Simpletest {
    * @return string
    *   The assembled command line fragment.
    */
-  protected function getRunTestsFlagValues($config) {
-    $command = [];
-    $flags = [
+  protected function getRunTestsFlagValues(Configuration $configuration) {
+    return $this->buildFlags($configuration, [
       'color',
-      'die-on-fail',
+      'dieOnFail',
       'verbose',
-    ];
-    foreach($config as $key => $value) {
-      if (in_array($key, $flags)) {
-        if ($value) {
-          $command[] = "--$key";
-        }
-      }
-    }
-    return implode(' ', $command);
+    ]);
   }
 
   /**
    * Turn run-test.sh values into their command-line equivalents.
    *
-   * @param type $config
+   * @param Configuration $configuration
    *   This plugin's config, from run().
    *
    * @return string
    *   The assembled command line fragment.
    */
-  protected function getRunTestsValues($config) {
-    $command = [];
-    $args = [
+  protected function getRunTestsValues(Configuration $configuration) {
+    return $this->buildArgs($configuration, [
       'concurrency',
       'url',
       'php',
-    ];
-    foreach ($config as $key => $value) {
-      if (in_array($key, $args)) {
-        if ($value) {
-          $command[] = "--$key \"$value\"";
-        }
-      }
-    }
-    return implode(' ', $command);
+    ]);
   }
 
   /**
