@@ -1,12 +1,12 @@
 <?php
 /**
  * @file
- * Contains
+ * Contains \Drupal\Component\Configuration\Exception\EnvironmentVariableNotSetException.
  */
 
 namespace Drupal\Component\Configuration\Exception;
 
-
-class EnvironmentVariableNotSetException {
-
-}
+/**
+ * Exception that can be thrown when an environment variable was not found.
+ */
+class EnvironmentVariableNotSetException extends ConfigurationException  { }

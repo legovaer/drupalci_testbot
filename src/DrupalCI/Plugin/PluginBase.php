@@ -6,6 +6,8 @@
 
 namespace DrupalCI\Plugin;
 
+use DrupalCI\Configuration\Configuration;
+use DrupalCI\Configuration\ConfigurationManager;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
 use Pimple\Container;
@@ -18,6 +20,7 @@ abstract class PluginBase implements Injectable {
   // TODO: Perhaps this isnt BuildTaskTrait, but a PluginTrait that figures out
   // configuration?
   use BuildTaskTrait;
+
   /**
    * The plugin_id.
    *
@@ -59,13 +62,12 @@ abstract class PluginBase implements Injectable {
    *   The plugin implementation definition.
    */
   public function __construct(array $configuration_overrides = [], $plugin_id = '', $plugin_definition = []) {
-    $this->configuration = $this->getDefaultConfiguration();
-    $this->configuration_overrides = $configuration_overrides;
+    $configuration_manager = new ConfigurationManager();
+    $this->configuration = new Configuration();
+    $configuration_manager->loadProperties($this->configuration);
+    $this->configuration->override($configuration_overrides);
     $this->pluginId = $plugin_id;
     $this->pluginDefinition = $plugin_definition;
-    // Compute the plugin's configuration.
-    $this->configure();
-    $this->override_config();
   }
 
   protected function exec($command, &$output, &$return_var) {

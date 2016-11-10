@@ -4,6 +4,7 @@ namespace DrupalCI\Providers;
 
 use DrupalCI\Console\Command\Docker\DockerBuildCommand;
 use DrupalCI\Console\Command\Docker\DockerRemoveCommand;
+use DrupalCI\Console\Command\Environment\ListVariablesCommand;
 use DrupalCI\Console\Command\Init\InitAllCommand;
 use DrupalCI\Console\Command\Init\InitBaseContainersCommand;
 use DrupalCI\Console\Command\Init\InitDatabaseContainersCommand;
@@ -65,6 +66,9 @@ class ConsoleCommandProvider implements ServiceProviderInterface {
     $container['command.run'] = function ($container) {
       return new RunCommand();
     };
+    $container['command.variables'] = function ($container) {
+      return new ListVariablesCommand();
+    };
 
     $container['commands'] = function ($container) {
       return array(
@@ -78,7 +82,8 @@ class ConsoleCommandProvider implements ServiceProviderInterface {
         $container['command.init.dependencies'],
         $container['command.init.docker'],
         $container['command.init.web'],
-        $container['command.run']
+        $container['command.run'],
+        $container['command.variables']
       );
     };
   }

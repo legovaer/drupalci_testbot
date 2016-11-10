@@ -5,6 +5,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
+use DrupalCI\Configuration\Configuration;
 use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
@@ -47,48 +48,6 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
    * @inheritDoc
    */
   public function configure() {
-    if (isset($_ENV['DCI_RunScript'])) {
-      $this->configuration['runscript'] = $_ENV['DCI_RunScript'];
-    }
-    if (isset($_ENV['DCI_PHPInterpreter'])) {
-      $this->configuration['php'] = $_ENV['DCI_PHPInterpreter'];
-    }
-    if (isset($_ENV['DCI_Concurrency'])) {
-      $this->configuration['concurrency'] = $_ENV['DCI_Concurrency'];
-    }
-    if (isset($_ENV['DCI_RTTypes'])) {
-      $this->configuration['types'] = $_ENV['DCI_RTTypes'];
-    }
-    if (isset($_ENV['DCI_RTSqlite'])) {
-      $this->configuration['sqlite'] = $_ENV['DCI_RTSqlite'];
-    }
-    if (isset($_ENV['DCI_RTUrl'])) {
-      $this->configuration['types'] = $_ENV['DCI_RTUrl'];
-    }
-    if (isset($_ENV['DCI_RTColor'])) {
-      $this->configuration['color'] = $_ENV['DCI_RTColor'];
-    }
-    if (isset($_ENV['DCI_RTTestGroups'])) {
-      $this->configuration['testgroups'] = $this->parseTestGroups($_ENV['DCI_RTTestGroups']);
-    }
-    if (isset($_ENV['DCI_TestItem'])) {
-      $this->configuration['testgroups'] = $this->parseTestGroups($_ENV['DCI_TestItem']);
-    }
-    if (isset($_ENV['DCI_TestGroups'])) {
-      $this->configuration['testgroups'] = $this->parseTestGroups($_ENV['DCI_TestGroups']);
-    }
-    if (isset($_ENV['DCI_RTDieOnFail'])) {
-      $this->configuration['die-on-fail'] = $_ENV['DCI_RTDieOnFail'];
-    }
-    if (isset($_ENV['DCI_RTKeepResults'])) {
-      $this->configuration['keep-results'] = $_ENV['DCI_RTKeepResults'];
-    }
-    if (isset($_ENV['DCI_RTKeepResultsTable'])) {
-      $this->configuration['keep-results-table'] = $_ENV['DCI_RTKeepResultsTable'];
-    }
-    if (isset($_ENV['DCI_RTVerbose'])) {
-      $this->configuration['verbose'] = $_ENV['DCI_RTVerbose'];
-    }
 
   }
 
@@ -102,11 +61,11 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     if ($status > 0) {
       return $status;
     }
-    $command = ["cd /var/www/html && sudo -u www-data php " . $this->configuration['runscript']];
-    $this->configuration['dburl'] = $this->system_database->getUrl();
+    $command = ["cd /var/www/html && sudo -u www-data php " . $this->configuration->runscript];
+    $this->configuration->dburl = $this->system_database->getUrl();
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
-    $command[] = $this->configuration['testgroups'];
+    $command[] = $this->configuration->testgroups;
 
     $command_line = implode(' ', $command);
 
@@ -137,9 +96,9 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
       'url' => 'http://localhost/checkout',
       'php' => '/opt/phpenv/shims/php',
       'color' => TRUE,
-      'die-on-fail' => FALSE,
-      'keep-results' => TRUE,
-      'keep-results-table' => FALSE,
+      'die_on_fail' => FALSE,
+      'keep_results' => TRUE,
+      'keep_results_table' => FALSE,
       'verbose' => FALSE,
     ];
   }
@@ -186,35 +145,18 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     // TODO: Implement getArtifacts() method.
   }
 
-  protected function parseTestGroups($testitem) {
-    // Special case for 'all'
-    if (strtolower($testitem) === 'all') {
-      return "--all";
-    }
-
-    // Split the string components
-    $components = explode(':', $testitem);
-    if (!in_array($components[0], array('module', 'class', 'file', 'directory'))) {
-      // Invalid entry.
-      return $testitem;
-    }
-
-    $testgroups = "--" . $components[0] . " " . $components[1];
-
-    return $testgroups;
-  }
 
   protected function setupSimpletestDB(BuildInterface $build) {
 
     // TODO: this shouldnt be in artifacts under the source dir.
     $source_dir = $this->build->getSourceDirectory();
-    $dbfile = $source_dir . '/artifacts/' . basename($this->configuration['sqlite']);
+    $dbfile = $source_dir . '/artifacts/' . basename($this->configuration->sqlite);
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
   }
 
   protected function generateTestGroups() {
-    $cmd = "sudo -u www-data php " . $this->configuration['runscript'] . " --list --php " . $this->configuration['php'] . " > /var/www/html/artifacts/testgroups.txt";
+    $cmd = "sudo -u www-data php " . $this->configuration->runscript . " --list --php " . $this->configuration->php . " > /var/www/html/artifacts/testgroups.txt";
     $status = $this->environment->executeCommands($cmd);
     return $status;
   }
@@ -222,26 +164,40 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
   /**
    * Turn run-test.sh flag values into their command-line equivalents.
    *
-   * @param type $config
-   *   This plugin's config, from run().
+   * @param Configuration $config
+   *   This plugin's configuration, from run().
    *
    * @return string
    *   The assembled command line fragment.
    */
-  protected function getRunTestsFlagValues($config) {
-    $command = [];
-    $flags = [
+  protected function getRunTestsFlagValues(Configuration $configuration) {
+    return $this->buildFlags($configuration, [
       'color',
-      'die-on-fail',
-      'keep-results',
-      'keep-results-table',
+      'die_on_fail',
+      'keep_results',
+      'keep_results_table',
       'verbose',
-    ];
-    foreach($config as $key => $value) {
-      if (in_array($key, $flags)) {
-        if ($value) {
-          $command[] = "--$key";
-        }
+    ]);
+  }
+
+  /**
+   * Turn run-test.sh flag values into their command-line equivalents.
+   *
+   * @param Configuration $configuration
+   *   This plugin's configuration, from run().
+   *
+   * @param array $flags
+   *   An array containing flags that need be set for the command.
+   *
+   * @return string
+   *   The assembled command line fragment.
+   */
+  public function buildFlags(Configuration $configuration, array $flags) {
+    $command = [];
+    foreach ($flags as $flag) {
+      if (property_exists($configuration, $flag) && $current_flag = $configuration->{$flag} === TRUE) {
+        $current_flag = str_replace('_', '-', $current_flag);
+        $command[] = "--$current_flag";
       }
     }
     return implode(' ', $command);
@@ -250,15 +206,36 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
   /**
    * Turn run-test.sh values into their command-line equivalents.
    *
-   * @param type $config
+   * @param Configuration $configuration
+   *   This plugin's config, from run().
+   *
+   * @param array $args
+   *   An array containing the arguments that need to be set.
+   *
+   * @return string
+   *   The assembled command line fragment.
+   */
+  public function buildArgs(Configuration $configuration, array $args) {
+    $command = [];
+    foreach ($args as $arg) {
+      if (property_exists($configuration, $arg) && $current_arg = $configuration->{$arg} === TRUE) {
+        $command[] = "--$arg \"$current_arg\"";
+      }
+    }
+
+    return implode(' ', $command);
+  }
+  /**
+   * Turn run-test.sh values into their command-line equivalents.
+   *
+   * @param Configuration $configuration
    *   This plugin's config, from run().
    *
    * @return string
    *   The assembled command line fragment.
    */
-  protected function getRunTestsValues($config) {
-    $command = [];
-    $args = [
+  protected function getRunTestsValues(Configuration $configuration) {
+    return $this->buildArgs($configuration, [
       'concurrency',
       'dburl',
       'sqlite',
@@ -266,15 +243,7 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
       'url',
       'xml',
       'php',
-    ];
-    foreach ($config as $key => $value) {
-      if (in_array($key, $args)) {
-        if ($value) {
-          $command[] = "--$key \"$value\"";
-        }
-      }
-    }
-    return implode(' ', $command);
+    ]);
   }
   /**
    * {@inheritdoc}

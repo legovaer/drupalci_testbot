@@ -39,10 +39,6 @@ class RunContainers extends PluginBase implements BuildStepInterface, BuildTaskI
    */
   public function configure() {
 
-    if (isset($_ENV['DCI_PHPVersion'])) {
-      $this->configuration['phpversion'] = $_ENV['DCI_PHPVersion'];
-    }
-
   }
 
   /**
@@ -53,7 +49,7 @@ class RunContainers extends PluginBase implements BuildStepInterface, BuildTaskI
     $this->io->writeln("<info>Parsing required Web container image names ...</info>");
     // 2. generates a container image name from the php version -
     //  drupalci/web-<phpversion>
-    $containers['web'] = $this->buildWebImageNames($this->configuration['phpversion']);
+    $containers['web'] = $this->buildWebImageNames($this->configuration->phpversion);
 
     // 3. confirms that the image name that we want to make a container out of
     // has been pulled down.
