@@ -2,6 +2,8 @@
 
 namespace DrupalCI\Plugin\BuildTask;
 
+use DrupalCI\Confugration\ConfigurationInterface;
+
 /**
  * Interface BuildTaskInterface
  *
@@ -69,8 +71,8 @@ interface BuildTaskInterface {
   /**
    * Gives a list of default values for variables for this task.
    *
-   * @return array
-   *   An array of configuration that this buildtask can accept. Used primarily
+   * @return ConfigurationInterface
+   *   A configuration object that this buildtask can accept. Used primarily
    *   to generate a build template for discoverability.
    */
   public function getDefaultConfiguration();
