@@ -6,6 +6,8 @@
 
 namespace DrupalCI\Plugin;
 
+use DrupalCI\Configuration\ConfigurationManager;
+use DrupalCI\Configration\ConfigurationInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
@@ -28,12 +30,19 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
 
   /**
    * Any variables that can affect the behavior of this plugin, that are
-   * specific to this plugin, reside in a configuration array within the plugin.
+   * specific to this plugin, reside in a configuration object within the
+   * plugin.
    *
-   * @var array
-   *
+   * @var ConfigurationInterface
    */
-  protected $configuration = [];
+  protected $configuration;
+
+  /**
+   * The ConfigurationManager that can be used for altering the configuration.
+   *
+   * @var ConfigurationManager
+   */
+  protected $configurationManager;
 
   /**
    * Configuration overrides passed into the plugin.
@@ -91,6 +100,7 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
 
   public function inject(Container $container) {
     $this->io = $container['console.io'];
+    $this->configurationManager = $container['configuration'];
     $this->container = $container;
   }
 
@@ -121,7 +131,9 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
    * @inheritDoc
    */
   public function configure() {
-    // Interface placeholder for plugins lacking config.
+    // Override the current configuration with the values that are stored within
+    // the system's environment variables.
+    $this->configurationManager->overrideWithEnvironmentVariables($this->configuration);
   }
 
   /**
@@ -150,7 +162,14 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
    * @inheritDoc
    */
   public function getDefaultConfiguration() {
-    return [];
+    $reflection_class = new \ReflectionClass($this);
+    $configuration_class = $reflection_class->getName() . "Configuration";
+    if (class_exists($configuration_class)) {
+      return $this->configurationManager->getDefaultConfiguration(new $configuration_class());
+    }
+    else {
+      return [];
+    }
   }
 
   /**
